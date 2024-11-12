@@ -13,7 +13,7 @@ class UserChart extends ChartWidget
 
     protected function getData(): array
     {
-        $data = Trend::model(Post::class)
+       $data = Trend::model(Post::class)
         ->between(
             start: now()->startOfYear(),
             end: now()->endOfYear(),
