@@ -5,22 +5,36 @@ namespace App\Filament\Widgets;
 use Filament\Widgets\ChartWidget;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
-use App\Models\Post;
+use Carbon\Carbon;
+use App\Models\Booking;
 
 class UserChart extends ChartWidget
 {
-    protected static ?string $heading = 'Posts Chart';
+    protected static ?string $heading = 'Booking Chart';
 
     protected function getData(): array
     {
+    $data = Trend::model(Booking::class)
+        ->between(
+            start: now()->startOfYear(),
+            end: now()->endOfYear(),
+        )
+        ->perMonth()
+        ->count();
+ 
     return [
         'datasets' => [
-                [
-                    'label' => 'Blog posts created',
-                    'data' => [0, 10, 5, 2, 21, 32, 45, 74, 65, 45, 77, 89],
-                ],
+            [
+                'label' => 'Bookings',
+                'data' => $data->map(fn (TrendValue $value) => $value->aggregate),
             ],
-            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        ],
+        'labels' => $data->map(function (TrendValue $value)  {
+            $date = Carbon::createFromFormat('Y-m', $value->date);
+            $formattedDate = $date->format('M');
+            
+            return $formattedDate;
+        }),
     ];
     }
 
